@@ -181,7 +181,9 @@ main (int argc, char *argv[])
       break;
 
     case 'v':
-      config->verbose = 1;
+      /* This option does nothing since 1.33.41.  Verbose is always
+       * enabled.
+       */
       break;
 
     case 'V':
@@ -206,8 +208,6 @@ main (int argc, char *argv[])
 
   /* If /proc/cmdline exists and contains "p2v.server=" then we enable
    * non-interactive configuration.
-   * If /proc/cmdline contains p2v.debug then we enable verbose mode
-   * even for interactive configuration.
    */
   if (cmdline == NULL) {
     cmdline = parse_proc_cmdline ();
@@ -215,9 +215,6 @@ main (int argc, char *argv[])
       goto gui;
     cmdline_source = CMDLINE_SOURCE_PROC_CMDLINE;
   }
-
-  if (get_cmdline_key (cmdline, "p2v.debug") != NULL)
-    config->verbose = 1;
 
   if (get_cmdline_key (cmdline, "p2v.server") != NULL)
     kernel_configuration (config, cmdline, cmdline_source);

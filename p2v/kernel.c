@@ -35,7 +35,7 @@
 #include "p2v.h"
 
 static void notify_ui_callback (int type, const char *data);
-static void run_command (int verbose, const char *stage, const char *command);
+static void run_command (const char *stage, const char *command);
 
 void
 kernel_configuration (struct config *config, char **cmdline, int cmdline_source)
@@ -44,7 +44,7 @@ kernel_configuration (struct config *config, char **cmdline, int cmdline_source)
 
   p = get_cmdline_key (cmdline, "p2v.pre");
   if (p)
-    run_command (config->verbose, "p2v.pre", p);
+    run_command ("p2v.pre", p);
 
   p = get_cmdline_key (cmdline, "p2v.server");
   assert (p); /* checked by caller */
@@ -232,7 +232,7 @@ kernel_configuration (struct config *config, char **cmdline, int cmdline_source)
 
     p = get_cmdline_key (cmdline, "p2v.fail");
     if (p)
-      run_command (config->verbose, "p2v.fail", p);
+      run_command ("p2v.fail", p);
 
     exit (EXIT_FAILURE);
   }
@@ -248,7 +248,7 @@ kernel_configuration (struct config *config, char **cmdline, int cmdline_source)
       p = "poweroff";
   }
   if (p)
-    run_command (config->verbose, "p2v.post", p);
+    run_command ("p2v.post", p);
 }
 
 static void
@@ -287,17 +287,17 @@ notify_ui_callback (int type, const char *data)
 }
 
 static void
-run_command (int verbose, const char *stage, const char *command)
+run_command (const char *stage, const char *command)
 {
   int r;
 
   if (STREQ (command, ""))
     return;
 
-  if (verbose) {
-    printf ("%s\n", command);
-    fflush (stdout);
-  }
+#if DEBUG_STDERR
+  fprintf (stderr, "%s\n", command);
+  fflush (stderr);
+#endif
 
   r = system (command);
   if (r == -1) {
